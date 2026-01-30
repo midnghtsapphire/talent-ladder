@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Award, Briefcase, DollarSign, Gamepad2, CheckCircle } from "lucide-react";
+import { Button } from "./ui/button";
 
 interface LadderStep {
   id: number;
@@ -45,7 +46,17 @@ const steps: LadderStep[] = [
   },
 ];
 
-const CareerLadder = () => {
+interface CareerLadderProps {
+  onStepClick?: (stepId: number, stepTitle: string) => void;
+}
+
+const CareerLadder = ({ onStepClick }: CareerLadderProps) => {
+  const handleStepClick = (step: LadderStep) => {
+    if (step.status !== "locked") {
+      onStepClick?.(step.id, step.title);
+    }
+  };
+
   return (
     <div className="relative py-8">
       {/* Vertical line connecting steps */}
@@ -82,8 +93,9 @@ const CareerLadder = () => {
             <motion.div
               className={`card-industrial p-4 ${
                 step.status === "current" ? "border-primary/50" : ""
-              }`}
+              } ${step.status !== "locked" ? "cursor-pointer" : ""}`}
               whileHover={{ scale: step.status !== "locked" ? 1.02 : 1 }}
+              onClick={() => handleStepClick(step)}
             >
               <div className="flex items-start gap-3">
                 <div
@@ -118,6 +130,20 @@ const CareerLadder = () => {
                   <p className="text-xs text-muted-foreground mt-1 font-mono">
                     {step.detail}
                   </p>
+                  
+                  {step.status === "current" && (
+                    <Button 
+                      variant="glow" 
+                      size="sm" 
+                      className="mt-3"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleStepClick(step);
+                      }}
+                    >
+                      Start This Step
+                    </Button>
+                  )}
                 </div>
               </div>
             </motion.div>

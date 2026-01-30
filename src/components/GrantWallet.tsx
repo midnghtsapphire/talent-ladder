@@ -15,7 +15,11 @@ const grants: GrantSource[] = [
   { name: "Veteran Upskill Program", amount: 500, type: "Federal", eligible: false },
 ];
 
-const GrantWallet = () => {
+interface GrantWalletProps {
+  onApplyClick: () => void;
+}
+
+const GrantWallet = ({ onApplyClick }: GrantWalletProps) => {
   const totalEligible = grants
     .filter(g => g.eligible)
     .reduce((sum, g) => sum + g.amount, 0);
@@ -87,7 +91,7 @@ const GrantWallet = () => {
       </div>
       
       {/* CTA */}
-      <Button variant="accent" className="w-full group">
+      <Button variant="accent" className="w-full group" onClick={onApplyClick}>
         Apply for CHIPS Funding
         <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
       </Button>

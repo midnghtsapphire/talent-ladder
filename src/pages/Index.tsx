@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -9,21 +9,95 @@ import CareerLadder from "@/components/CareerLadder";
 import GrantWallet from "@/components/GrantWallet";
 import StatsBar from "@/components/StatsBar";
 import OpportunitiesCarousel from "@/components/OpportunitiesCarousel";
+import AuthModal from "@/components/AuthModal";
+import GrantApplicationModal from "@/components/GrantApplicationModal";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Cpu, Award, Wallet } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [selectedHotspot, setSelectedHotspot] = useState<HotspotData | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
+  const [grantModalOpen, setGrantModalOpen] = useState(false);
+  const { toast } = useToast();
+
+  // Refs for scroll navigation
+  const assessmentRef = useRef<HTMLDivElement>(null);
+  const careersRef = useRef<HTMLDivElement>(null);
+  const opportunitiesRef = useRef<HTMLDivElement>(null);
+  const grantsRef = useRef<HTMLDivElement>(null);
 
   const handleAssessmentSubmit = (zipCode: string, currentJob: string) => {
     console.log("Assessment submitted:", { zipCode, currentJob });
     setHasStarted(true);
+    toast({
+      title: "Assessment Complete!",
+      description: `We found opportunities near ${zipCode} for ${currentJob}s.`,
+    });
+    careersRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleSignIn = () => {
+    setAuthMode("signin");
+    setAuthModalOpen(true);
+  };
+
+  const handleGetStarted = () => {
+    setAuthMode("signup");
+    setAuthModalOpen(true);
+  };
+
+  const handleNavigate = (section: string) => {
+    switch (section) {
+      case "certifications":
+      case "careers":
+        careersRef.current?.scrollIntoView({ behavior: "smooth" });
+        break;
+      case "opportunities":
+        opportunitiesRef.current?.scrollIntoView({ behavior: "smooth" });
+        break;
+      case "grants":
+        grantsRef.current?.scrollIntoView({ behavior: "smooth" });
+        break;
+      case "employers":
+        toast({
+          title: "Employer Portal",
+          description: "Our employer portal is coming soon. Contact us for early access!",
+        });
+        break;
+      default:
+        break;
+    }
+  };
+
+  const scrollToAssessment = () => {
+    assessmentRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleCareerStepClick = (stepId: number, stepTitle: string) => {
+    toast({
+      title: `Starting: ${stepTitle}`,
+      description: "Let's begin this step of your career journey!",
+    });
+  };
+
+  const handleFindCareerPath = () => {
+    assessmentRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleExploreGrants = () => {
+    grantsRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header 
+        onSignIn={handleSignIn}
+        onGetStarted={handleGetStarted}
+        onNavigate={handleNavigate}
+      />
       
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
@@ -65,11 +139,11 @@ const Index = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button variant="hero" size="xl">
+                <Button variant="hero" size="xl" onClick={handleFindCareerPath}>
                   Find My Career Path
                   <ArrowDown className="w-5 h-5 animate-bounce" />
                 </Button>
-                <Button variant="outline" size="xl">
+                <Button variant="outline" size="xl" onClick={() => handleNavigate("employers")}>
                   For Employers
                 </Button>
               </div>
@@ -112,7 +186,7 @@ const Index = () => {
       <StatsBar />
       
       {/* Quick Assessment Section */}
-      <section className="py-20 relative">
+      <section ref={assessmentRef} className="py-20 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/5 to-background" />
         <div className="container relative">
           <motion.div
@@ -134,7 +208,7 @@ const Index = () => {
       </section>
       
       {/* Career Ladder + Grant Wallet */}
-      <section className="py-20 bg-secondary/10">
+      <section ref={careersRef} className="py-20 bg-secondary/10">
         <div className="container">
           <motion.div
             className="text-center mb-12"
@@ -157,23 +231,23 @@ const Index = () => {
                 <Award className="w-5 h-5 text-primary" />
                 <h3 className="font-semibold">Career Ladder</h3>
               </div>
-              <CareerLadder />
+              <CareerLadder onStepClick={handleCareerStepClick} />
             </div>
             
             {/* Grant Wallet */}
-            <div>
+            <div ref={grantsRef}>
               <div className="flex items-center gap-2 mb-6">
                 <Wallet className="w-5 h-5 text-accent" />
                 <h3 className="font-semibold">Your Funding</h3>
               </div>
-              <GrantWallet />
+              <GrantWallet onApplyClick={() => setGrantModalOpen(true)} />
             </div>
           </div>
         </div>
       </section>
       
       {/* Opportunities Carousel */}
-      <section className="py-20">
+      <section ref={opportunitiesRef} className="py-20">
         <div className="container">
           <motion.div
             className="text-center mb-12"
@@ -189,7 +263,7 @@ const Index = () => {
             </p>
           </motion.div>
           
-          <OpportunitiesCarousel />
+          <OpportunitiesCarousel onScrollToAssessment={scrollToAssessment} />
         </div>
       </section>
       
@@ -211,10 +285,10 @@ const Index = () => {
               The CHIPS Act is creating opportunities. Will you grab one?
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="hero" size="xl">
+              <Button variant="hero" size="xl" onClick={scrollToAssessment}>
                 Start My Free Assessment
               </Button>
-              <Button variant="accent" size="xl">
+              <Button variant="accent" size="xl" onClick={handleExploreGrants}>
                 Explore Grants
               </Button>
             </div>
@@ -222,7 +296,18 @@ const Index = () => {
         </div>
       </section>
       
-      <Footer />
+      <Footer onNavigate={handleNavigate} />
+
+      {/* Modals */}
+      <AuthModal 
+        isOpen={authModalOpen} 
+        onClose={() => setAuthModalOpen(false)} 
+        initialMode={authMode}
+      />
+      <GrantApplicationModal
+        isOpen={grantModalOpen}
+        onClose={() => setGrantModalOpen(false)}
+      />
     </div>
   );
 };
