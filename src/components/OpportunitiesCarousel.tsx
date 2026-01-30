@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { MapPin, DollarSign, Clock, ChevronRight } from "lucide-react";
 import { Button } from "./ui/button";
+import OpportunityModal from "./OpportunityModal";
+import { useToast } from "@/hooks/use-toast";
 
 interface Opportunity {
   id: string;
@@ -51,7 +54,28 @@ const opportunities: Opportunity[] = [
   },
 ];
 
-const OpportunitiesCarousel = () => {
+interface OpportunitiesCarouselProps {
+  onScrollToAssessment?: () => void;
+}
+
+const OpportunitiesCarousel = ({ onScrollToAssessment }: OpportunitiesCarouselProps) => {
+  const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const { toast } = useToast();
+
+  const handleViewPath = (opp: Opportunity) => {
+    setSelectedOpportunity(opp);
+  };
+
+  const handleApply = () => {
+    setSelectedOpportunity(null);
+    toast({
+      title: "Great choice!",
+      description: "Let's start by assessing your current skills.",
+    });
+    onScrollToAssessment?.();
+  };
+
   return (
     <div className="relative">
       <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
@@ -64,6 +88,7 @@ const OpportunitiesCarousel = () => {
             transition={{ delay: index * 0.1 }}
             viewport={{ once: true }}
             whileHover={{ scale: 1.02 }}
+            onViewportEnter={() => setActiveIndex(index)}
           >
             {/* Header */}
             <div className="mb-4">
@@ -97,7 +122,12 @@ const OpportunitiesCarousel = () => {
             </div>
             
             {/* CTA */}
-            <Button variant="outline" size="sm" className="w-full group">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full group"
+              onClick={() => handleViewPath(opp)}
+            >
               View Path
               <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -110,10 +140,20 @@ const OpportunitiesCarousel = () => {
         {opportunities.map((_, i) => (
           <div
             key={i}
-            className={`w-2 h-2 rounded-full ${i === 0 ? "bg-primary" : "bg-border"}`}
+            className={`w-2 h-2 rounded-full transition-colors ${
+              i === activeIndex ? "bg-primary" : "bg-border"
+            }`}
           />
         ))}
       </div>
+
+      {/* Modal */}
+      <OpportunityModal
+        isOpen={!!selectedOpportunity}
+        onClose={() => setSelectedOpportunity(null)}
+        opportunity={selectedOpportunity}
+        onApply={handleApply}
+      />
     </div>
   );
 };
