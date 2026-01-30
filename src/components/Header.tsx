@@ -1,12 +1,14 @@
 import { motion } from "framer-motion";
-import { Wrench, Menu, LogOut, User } from "lucide-react";
+import { Wrench, Menu, LogOut, User, LayoutDashboard } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
@@ -19,6 +21,7 @@ interface HeaderProps {
 const Header = ({ onSignIn, onGetStarted, onNavigate }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const handleNavClick = (section: string) => {
     onNavigate(section);
@@ -88,6 +91,11 @@ const Header = ({ onSignIn, onGetStarted, onNavigate }: HeaderProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => navigate("/dashboard")} className="gap-2">
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="gap-2">
                   <LogOut className="w-4 h-4" />
                   Sign Out
@@ -135,18 +143,24 @@ const Header = ({ onSignIn, onGetStarted, onNavigate }: HeaderProps) => {
             <button onClick={() => handleNavClick("employers")} className="text-sm py-2 text-left">
               For Employers
             </button>
-            <div className="flex gap-2 pt-2">
+            <div className="flex flex-col gap-2 pt-2">
               {user ? (
-                <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={handleSignOut}>
-                  <LogOut className="w-4 h-4" />
-                  Sign Out
-                </Button>
+                <>
+                  <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => { navigate("/dashboard"); setMobileMenuOpen(false); }}>
+                    <LayoutDashboard className="w-4 h-4" />
+                    Dashboard
+                  </Button>
+                  <Button variant="ghost" size="sm" className="w-full gap-2" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </Button>
+                </>
               ) : (
                 <>
-                  <Button variant="ghost" size="sm" className="flex-1" onClick={onSignIn}>
+                  <Button variant="ghost" size="sm" className="w-full" onClick={onSignIn}>
                     Sign In
                   </Button>
-                  <Button variant="default" size="sm" className="flex-1" onClick={onGetStarted}>
+                  <Button variant="default" size="sm" className="w-full" onClick={onGetStarted}>
                     Get Started
                   </Button>
                 </>
