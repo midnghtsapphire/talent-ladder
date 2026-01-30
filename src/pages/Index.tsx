@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -14,6 +14,8 @@ import GrantApplicationModal from "@/components/GrantApplicationModal";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Cpu, Award, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAssessments } from "@/hooks/useAssessments";
 
 const Index = () => {
   const [selectedHotspot, setSelectedHotspot] = useState<HotspotData | null>(null);
@@ -22,12 +24,21 @@ const Index = () => {
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [grantModalOpen, setGrantModalOpen] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { submitPendingAssessment } = useAssessments();
 
   // Refs for scroll navigation
   const assessmentRef = useRef<HTMLDivElement>(null);
   const careersRef = useRef<HTMLDivElement>(null);
   const opportunitiesRef = useRef<HTMLDivElement>(null);
   const grantsRef = useRef<HTMLDivElement>(null);
+
+  // Submit pending assessment when user logs in
+  useEffect(() => {
+    if (user) {
+      submitPendingAssessment();
+    }
+  }, [user]);
 
   const handleAssessmentSubmit = (zipCode: string, currentJob: string) => {
     console.log("Assessment submitted:", { zipCode, currentJob });
@@ -89,6 +100,11 @@ const Index = () => {
 
   const handleExploreGrants = () => {
     grantsRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleRequireAuth = () => {
+    setAuthMode("signup");
+    setAuthModalOpen(true);
   };
 
   return (
@@ -203,7 +219,10 @@ const Index = () => {
             </p>
           </motion.div>
           
-          <QuickAssessment onSubmit={handleAssessmentSubmit} />
+          <QuickAssessment 
+            onSubmit={handleAssessmentSubmit} 
+            onRequireAuth={handleRequireAuth}
+          />
         </div>
       </section>
       
@@ -263,7 +282,10 @@ const Index = () => {
             </p>
           </motion.div>
           
-          <OpportunitiesCarousel onScrollToAssessment={scrollToAssessment} />
+          <OpportunitiesCarousel 
+            onScrollToAssessment={scrollToAssessment}
+            onRequireAuth={handleRequireAuth}
+          />
         </div>
       </section>
       
@@ -307,6 +329,7 @@ const Index = () => {
       <GrantApplicationModal
         isOpen={grantModalOpen}
         onClose={() => setGrantModalOpen(false)}
+        onRequireAuth={handleRequireAuth}
       />
     </div>
   );

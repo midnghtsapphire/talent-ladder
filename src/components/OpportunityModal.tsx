@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, MapPin, DollarSign, Clock, Award, Building2, CheckCircle, ArrowRight } from "lucide-react";
+import { X, MapPin, DollarSign, Clock, Award, Building2, CheckCircle, ArrowRight, Bookmark } from "lucide-react";
 import { Button } from "./ui/button";
+import { useJobApplications } from "@/hooks/useJobApplications";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Opportunity {
   id: string;
@@ -17,9 +19,13 @@ interface OpportunityModalProps {
   onClose: () => void;
   opportunity: Opportunity | null;
   onApply: () => void;
+  onRequireAuth?: () => void;
 }
 
-const OpportunityModal = ({ isOpen, onClose, opportunity, onApply }: OpportunityModalProps) => {
+const OpportunityModal = ({ isOpen, onClose, opportunity, onApply, onRequireAuth }: OpportunityModalProps) => {
+  const { saveOpportunity, applyToJob, isSubmitting } = useJobApplications();
+  const { user } = useAuth();
+
   if (!opportunity) return null;
 
   const requirements = [
@@ -37,6 +43,41 @@ const OpportunityModal = ({ isOpen, onClose, opportunity, onApply }: Opportunity
     "Relocation assistance available",
     "Career advancement opportunities",
   ];
+
+  const handleSaveForLater = async () => {
+    const result = await saveOpportunity({
+      jobId: opportunity.id,
+      jobTitle: opportunity.title,
+      company: opportunity.company,
+      location: opportunity.location,
+      salaryRange: opportunity.salary,
+      certificationRequired: opportunity.certRequired,
+    });
+
+    if (result.requiresAuth && onRequireAuth) {
+      onRequireAuth();
+    }
+  };
+
+  const handleApply = async () => {
+    const result = await applyToJob({
+      jobId: opportunity.id,
+      jobTitle: opportunity.title,
+      company: opportunity.company,
+      location: opportunity.location,
+      salaryRange: opportunity.salary,
+      certificationRequired: opportunity.certRequired,
+    });
+
+    if (result.requiresAuth && onRequireAuth) {
+      onRequireAuth();
+      return;
+    }
+
+    if (result.success) {
+      onApply();
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -134,11 +175,21 @@ const OpportunityModal = ({ isOpen, onClose, opportunity, onApply }: Opportunity
 
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">
-                <Button variant="hero" className="flex-1" onClick={onApply}>
-                  Start My Path to This Job
+                <Button 
+                  variant="hero" 
+                  className="flex-1" 
+                  onClick={handleApply}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Saving..." : "Start My Path to This Job"}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
-                <Button variant="outline" onClick={onClose}>
+                <Button 
+                  variant="outline" 
+                  onClick={handleSaveForLater}
+                  disabled={isSubmitting}
+                >
+                  <Bookmark className="w-4 h-4 mr-2" />
                   Save for Later
                 </Button>
               </div>
