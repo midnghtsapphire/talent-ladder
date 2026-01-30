@@ -3,16 +3,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Wallet, CheckCircle, ArrowRight, FileText } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { useGrantApplications } from "@/hooks/useGrantApplications";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface GrantApplicationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onRequireAuth?: () => void;
 }
 
-const GrantApplicationModal = ({ isOpen, onClose }: GrantApplicationModalProps) => {
+const GrantApplicationModal = ({ isOpen, onClose, onRequireAuth }: GrantApplicationModalProps) => {
   const [step, setStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -21,7 +22,9 @@ const GrantApplicationModal = ({ isOpen, onClose }: GrantApplicationModalProps) 
     ssn: "",
     income: "",
   });
-  const { toast } = useToast();
+  
+  const { submitApplication, isSubmitting } = useGrantApplications();
+  const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,25 +34,34 @@ const GrantApplicationModal = ({ isOpen, onClose }: GrantApplicationModalProps) 
       return;
     }
 
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    toast({
-      title: "Application Submitted!",
-      description: "You'll receive a confirmation email within 24 hours.",
+    const result = await submitApplication({
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      ssnLastFour: formData.ssn,
+      annualIncome: formData.income,
+      grantAmount: 4500,
+      grantType: "chips_workforce",
     });
 
-    setIsLoading(false);
-    onClose();
-    setStep(1);
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      ssn: "",
-      income: "",
-    });
+    if (result.requiresAuth && onRequireAuth) {
+      onRequireAuth();
+      return;
+    }
+
+    if (result.success) {
+      onClose();
+      setStep(1);
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        ssn: "",
+        income: "",
+      });
+    }
   };
 
   const steps = [
@@ -94,6 +106,16 @@ const GrantApplicationModal = ({ isOpen, onClose }: GrantApplicationModalProps) 
                   <p className="text-sm text-muted-foreground">Apply for up to $4,500 in training funds</p>
                 </div>
               </div>
+
+              {/* Auth notice */}
+              {!user && (
+                <div className="mb-4 p-3 bg-primary/10 border border-primary/20 rounded-lg text-sm">
+                  <p className="text-muted-foreground">
+                    You'll need to sign in to submit your application. 
+                    Fill out the form and we'll prompt you to sign in.
+                  </p>
+                </div>
+              )}
 
               {/* Progress */}
               <div className="flex items-center gap-2 mb-6">
@@ -233,9 +255,9 @@ const GrantApplicationModal = ({ isOpen, onClose }: GrantApplicationModalProps) 
                     type="submit"
                     variant="accent"
                     className="flex-1"
-                    disabled={isLoading}
+                    disabled={isSubmitting}
                   >
-                    {isLoading ? (
+                    {isSubmitting ? (
                       "Submitting..."
                     ) : step === 3 ? (
                       <>

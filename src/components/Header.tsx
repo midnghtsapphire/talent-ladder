@@ -1,7 +1,14 @@
 import { motion } from "framer-motion";
-import { Wrench, Menu } from "lucide-react";
+import { Wrench, Menu, LogOut, User } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 interface HeaderProps {
   onSignIn: () => void;
@@ -11,10 +18,15 @@ interface HeaderProps {
 
 const Header = ({ onSignIn, onGetStarted, onNavigate }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   const handleNavClick = (section: string) => {
     onNavigate(section);
     setMobileMenuOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
   };
 
   return (
@@ -65,12 +77,33 @@ const Header = ({ onSignIn, onGetStarted, onNavigate }: HeaderProps) => {
         
         {/* CTA */}
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" className="hidden md:inline-flex" onClick={onSignIn}>
-            Sign In
-          </Button>
-          <Button variant="default" size="sm" className="hidden md:inline-flex" onClick={onGetStarted}>
-            Get Started
-          </Button>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="hidden md:inline-flex gap-2">
+                  <User className="w-4 h-4" />
+                  <span className="max-w-[120px] truncate">
+                    {user.email?.split("@")[0]}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleSignOut} className="gap-2">
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" className="hidden md:inline-flex" onClick={onSignIn}>
+                Sign In
+              </Button>
+              <Button variant="default" size="sm" className="hidden md:inline-flex" onClick={onGetStarted}>
+                Get Started
+              </Button>
+            </>
+          )}
           <Button 
             variant="ghost" 
             size="icon" 
@@ -103,12 +136,21 @@ const Header = ({ onSignIn, onGetStarted, onNavigate }: HeaderProps) => {
               For Employers
             </button>
             <div className="flex gap-2 pt-2">
-              <Button variant="ghost" size="sm" className="flex-1" onClick={onSignIn}>
-                Sign In
-              </Button>
-              <Button variant="default" size="sm" className="flex-1" onClick={onGetStarted}>
-                Get Started
-              </Button>
+              {user ? (
+                <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </Button>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" className="flex-1" onClick={onSignIn}>
+                    Sign In
+                  </Button>
+                  <Button variant="default" size="sm" className="flex-1" onClick={onGetStarted}>
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         </motion.div>

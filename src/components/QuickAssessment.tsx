@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import { MapPin, Briefcase, ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { useAssessments } from "@/hooks/useAssessments";
 
 interface QuickAssessmentProps {
   onSubmit: (zipCode: string, currentJob: string) => void;
+  onRequireAuth?: () => void;
 }
 
 const jobSuggestions = [
@@ -18,14 +20,27 @@ const jobSuggestions = [
   "Other"
 ];
 
-const QuickAssessment = ({ onSubmit }: QuickAssessmentProps) => {
+const QuickAssessment = ({ onSubmit, onRequireAuth }: QuickAssessmentProps) => {
   const [zipCode, setZipCode] = useState("");
   const [currentJob, setCurrentJob] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const { submitAssessment, isSubmitting } = useAssessments();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (zipCode && currentJob) {
+      // Submit to database
+      const result = await submitAssessment({
+        zipCode,
+        currentOccupation: currentJob,
+      });
+
+      // If user needs to auth, prompt them but still proceed with UI
+      if (result.requiresAuth && onRequireAuth) {
+        // Data is saved to localStorage, proceed with local experience
+      }
+
+      // Call the parent handler for UI updates
       onSubmit(zipCode, currentJob);
     }
   };
@@ -96,9 +111,9 @@ const QuickAssessment = ({ onSubmit }: QuickAssessmentProps) => {
           type="submit" 
           variant="hero" 
           className="w-full"
-          disabled={!zipCode || !currentJob}
+          disabled={!zipCode || !currentJob || isSubmitting}
         >
-          Find My Path
+          {isSubmitting ? "Finding..." : "Find My Path"}
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>

@@ -56,9 +56,10 @@ const opportunities: Opportunity[] = [
 
 interface OpportunitiesCarouselProps {
   onScrollToAssessment?: () => void;
+  onRequireAuth?: () => void;
 }
 
-const OpportunitiesCarousel = ({ onScrollToAssessment }: OpportunitiesCarouselProps) => {
+const OpportunitiesCarousel = ({ onScrollToAssessment, onRequireAuth }: OpportunitiesCarouselProps) => {
   const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const { toast } = useToast();
@@ -153,6 +154,7 @@ const OpportunitiesCarousel = ({ onScrollToAssessment }: OpportunitiesCarouselPr
         onClose={() => setSelectedOpportunity(null)}
         opportunity={selectedOpportunity}
         onApply={handleApply}
+        onRequireAuth={onRequireAuth}
       />
     </div>
   );

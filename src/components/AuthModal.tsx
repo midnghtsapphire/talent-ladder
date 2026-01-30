@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Lock, User, ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAssessments } from "@/hooks/useAssessments";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -17,31 +18,54 @@ const AuthModal = ({ isOpen, onClose, initialMode = "signin" }: AuthModalProps) 
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const [error, setError] = useState<string | null>(null);
+  
+  const { signIn, signUp } = useAuth();
+  const { submitPendingAssessment } = useAssessments();
+
+  // Reset mode when initialMode changes
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      if (mode === "signin") {
+        const { error } = await signIn(email, password);
+        if (error) {
+          setError(error.message);
+          setIsLoading(false);
+          return;
+        }
+        // Submit any pending assessment after successful login
+        await submitPendingAssessment();
+      } else {
+        const { error } = await signUp(email, password, name);
+        if (error) {
+          setError(error.message);
+          setIsLoading(false);
+          return;
+        }
+      }
 
-    toast({
-      title: mode === "signin" ? "Welcome back!" : "Account created!",
-      description: mode === "signin" 
-        ? "You've successfully signed in to Industrial Ladder."
-        : "Check your email to verify your account.",
-    });
-
-    setIsLoading(false);
-    onClose();
-    setEmail("");
-    setPassword("");
-    setName("");
+      setIsLoading(false);
+      onClose();
+      setEmail("");
+      setPassword("");
+      setName("");
+    } catch (err) {
+      setError("An unexpected error occurred");
+      setIsLoading(false);
+    }
   };
 
   const toggleMode = () => {
     setMode(mode === "signin" ? "signup" : "signin");
+    setError(null);
   };
 
   return (
@@ -84,6 +108,13 @@ const AuthModal = ({ isOpen, onClose, initialMode = "signin" }: AuthModalProps) 
                     : "Create an account to start your path to a $65K+ career"}
                 </p>
               </div>
+
+              {/* Error message */}
+              {error && (
+                <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+                  {error}
+                </div>
+              )}
 
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
