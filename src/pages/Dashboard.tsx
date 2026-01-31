@@ -78,7 +78,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
-  const { getSavedOpportunities, getMyApplications: getJobApplications } = useJobApplications();
+  const { getSavedOpportunities, getMyApplications: getJobApplications, deleteSavedOpportunity } = useJobApplications();
   const { getMyApplications: getGrantApplications } = useGrantApplications();
 
   const [savedOpportunities, setSavedOpportunities] = useState<SavedOpportunity[]>([]);
@@ -240,11 +240,28 @@ const Dashboard = () => {
                     >
                       <Card className="card-industrial h-full hover:border-primary/50 transition-colors">
                         <CardHeader>
-                          <CardTitle className="text-lg">{opportunity.job_title}</CardTitle>
-                          <CardDescription className="flex items-center gap-1">
-                            <Building2 className="w-3 h-3" />
-                            {opportunity.company}
-                          </CardDescription>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              <CardTitle className="text-lg truncate">{opportunity.job_title}</CardTitle>
+                              <CardDescription className="flex items-center gap-1">
+                                <Building2 className="w-3 h-3 flex-shrink-0" />
+                                <span className="truncate">{opportunity.company}</span>
+                              </CardDescription>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive flex-shrink-0"
+                              onClick={async () => {
+                                const result = await deleteSavedOpportunity(opportunity.id);
+                                if (result.success) {
+                                  setSavedOpportunities(prev => prev.filter(o => o.id !== opportunity.id));
+                                }
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </CardHeader>
                         <CardContent className="space-y-3">
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
