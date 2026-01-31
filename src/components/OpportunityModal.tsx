@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 import { X, MapPin, DollarSign, Clock, Award, Building2, CheckCircle, ArrowRight, Bookmark } from "lucide-react";
 import { Button } from "./ui/button";
 import { useJobApplications } from "@/hooks/useJobApplications";
 import { useAuth } from "@/contexts/AuthContext";
-
 interface Opportunity {
   id: string;
   title: string;
@@ -81,7 +81,7 @@ const OpportunityModal = ({ isOpen, onClose, opportunity, onApply, onRequireAuth
     }
   };
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
         <>
@@ -96,7 +96,7 @@ const OpportunityModal = ({ isOpen, onClose, opportunity, onApply, onRequireAuth
 
           {/* Modal */}
           <motion.div
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -202,6 +202,8 @@ const OpportunityModal = ({ isOpen, onClose, opportunity, onApply, onRequireAuth
       )}
     </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default OpportunityModal;
