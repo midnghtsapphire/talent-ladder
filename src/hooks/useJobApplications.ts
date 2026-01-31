@@ -131,6 +131,35 @@ export const useJobApplications = () => {
     }
   };
 
+  const deleteSavedOpportunity = async (id: string) => {
+    if (!user) return { success: false };
+
+    try {
+      const { error } = await supabase
+        .from("saved_opportunities")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Removed",
+        description: "Opportunity removed from saved list.",
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting saved opportunity:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove opportunity.",
+        variant: "destructive",
+      });
+      return { success: false };
+    }
+  };
+
   const getMyApplications = async () => {
     if (!user) return [];
 
@@ -153,6 +182,7 @@ export const useJobApplications = () => {
     saveOpportunity,
     applyToJob,
     getSavedOpportunities,
+    deleteSavedOpportunity,
     getMyApplications,
     isSubmitting,
   };
