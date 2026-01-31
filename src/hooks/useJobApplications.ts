@@ -18,7 +18,9 @@ export const useJobApplications = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const saveOpportunity = async (data: JobApplicationData) => {
+    console.log("saveOpportunity called with:", data, "user:", user?.id);
     if (!user) {
+      console.log("No user found, returning requiresAuth");
       toast({
         title: "Sign in required",
         description: "Please sign in to save opportunities.",

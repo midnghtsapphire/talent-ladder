@@ -45,6 +45,7 @@ const OpportunityModal = ({ isOpen, onClose, opportunity, onApply, onRequireAuth
   ];
 
   const handleSaveForLater = async () => {
+    console.log("handleSaveForLater clicked, opportunity:", opportunity.id);
     const result = await saveOpportunity({
       jobId: opportunity.id,
       jobTitle: opportunity.title,
@@ -53,6 +54,7 @@ const OpportunityModal = ({ isOpen, onClose, opportunity, onApply, onRequireAuth
       salaryRange: opportunity.salary,
       certificationRequired: opportunity.certRequired,
     });
+    console.log("saveOpportunity result:", result);
 
     if (result.requiresAuth && onRequireAuth) {
       onRequireAuth();
@@ -94,10 +96,11 @@ const OpportunityModal = ({ isOpen, onClose, opportunity, onApply, onRequireAuth
 
           {/* Modal */}
           <motion.div
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-2xl max-h-[90vh] overflow-y-auto"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="card-industrial p-6 relative">
               {/* Close button */}
