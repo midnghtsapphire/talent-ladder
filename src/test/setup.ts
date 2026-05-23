@@ -25,8 +25,19 @@ class MockIntersectionObserver {
   }
 
   observe(target: Element) {
+    const rect = target.getBoundingClientRect();
+    const entry: IntersectionObserverEntry = {
+      time: Date.now(),
+      target,
+      rootBounds: null,
+      boundingClientRect: rect,
+      intersectionRect: rect,
+      isIntersecting: true,
+      intersectionRatio: 1,
+    };
+
     this.callback(
-      [{ isIntersecting: true, target } as IntersectionObserverEntry],
+      [entry],
       this as unknown as IntersectionObserver
     );
   }
