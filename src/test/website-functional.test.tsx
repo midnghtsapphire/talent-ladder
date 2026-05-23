@@ -12,9 +12,9 @@ vi.mock("@/integrations/supabase/client", () => {
       },
     })),
     getSession: vi.fn(async () => ({ data: { session: null } })),
-    signInWithPassword: vi.fn(async () => ({ error: null })),
-    signUp: vi.fn(async () => ({ error: null })),
-    signOut: vi.fn(async () => ({ error: null })),
+    signInWithPassword: vi.fn(async () => ({ data: { user: null, session: null }, error: null })),
+    signUp: vi.fn(async () => ({ data: { user: null, session: null }, error: null })),
+    signOut: vi.fn(async () => ({ data: {}, error: null })),
   };
 
   return {

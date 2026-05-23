@@ -41,8 +41,8 @@ class MockIntersectionObserver {
       this as unknown as IntersectionObserver
     );
   }
-  unobserve() {}
-  disconnect() {}
+  unobserve(_target: Element): void {}
+  disconnect(): void {}
 }
 
 Object.defineProperty(window, "IntersectionObserver", {
