@@ -15,12 +15,21 @@ Object.defineProperty(window, "matchMedia", {
 });
 
 class MockIntersectionObserver {
-  constructor(
-    _callback: IntersectionObserverCallback,
-    _options?: IntersectionObserverInit
-  ) {}
+  private callback: IntersectionObserverCallback;
 
-  observe() {}
+  constructor(
+    callback: IntersectionObserverCallback,
+    _options?: IntersectionObserverInit
+  ) {
+    this.callback = callback;
+  }
+
+  observe(target: Element) {
+    this.callback(
+      [{ isIntersecting: true, target } as IntersectionObserverEntry],
+      this as unknown as IntersectionObserver
+    );
+  }
   unobserve() {}
   disconnect() {}
 }
