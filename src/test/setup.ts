@@ -15,6 +15,11 @@ Object.defineProperty(window, "matchMedia", {
 });
 
 class MockIntersectionObserver {
+  constructor(
+    _callback: IntersectionObserverCallback,
+    _options?: IntersectionObserverInit
+  ) {}
+
   observe() {}
   unobserve() {}
   disconnect() {}
