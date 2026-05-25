@@ -35,6 +35,10 @@ describe("revvel-standards baseline", () => {
     const indexHtml = readFileSync(join(process.cwd(), "index.html"), "utf8");
 
     expect(indexHtml).toContain("Talent Ladder");
+    expect(indexHtml).toContain('name="description"');
+    expect(indexHtml).toContain('property="og:title"');
+    expect(indexHtml).toContain('property="og:image" content="/og-image.svg"');
+    expect(indexHtml).toContain('name="twitter:image" content="/og-image.svg"');
     expect(indexHtml).not.toContain("Lovable App");
     expect(indexHtml).not.toContain("Lovable Generated Project");
   });

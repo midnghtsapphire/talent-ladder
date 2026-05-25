@@ -3,7 +3,7 @@
 ## Website and brand assets
 - `/index.html` metadata for SEO, Open Graph, and Twitter cards.
 - `/public/favicon.ico` favicon for browser identity.
-- `/public/placeholder.svg` share/preview image currently used by OG and Twitter tags.
+- `/public/og-image.svg` branded share/preview image used by OG and Twitter tags.
 - `/public/robots.txt` crawler directives for search and social bots.
 
 ## Product assets
