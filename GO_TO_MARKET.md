@@ -24,6 +24,15 @@ Ship and operate a complete candidate-facing experience in one iteration (assess
 - Workforce partner referrals (boards, colleges, bootcamps).
 - Employer co-marketing for urgent technician pipelines.
 
+## Research engine outputs and suggestions
+- **Demand tracking engine:** monitor CHIPS investments, state grants, and labor postings weekly to prioritize metro expansion.
+- **Conversion optimization engine:** instrument assessment -> opportunity -> application funnel to identify drop-off points and improve completion rates.
+- **Partner pipeline engine:** score and rank workforce board, college, and employer partnerships by activation speed and placement yield.
+- **Suggestion backlog (single-iteration execution):**
+  1. Publish city-specific landing pages tied to known hiring clusters.
+  2. Add partner-facing dashboard snapshots for program performance reporting.
+  3. Prioritize grant recommendation UX where subsidy availability is highest.
+
 ## Revenue model and projections
 - Placement success fees with hiring partners.
 - B2B subscriptions for partner dashboards and candidate funnel analytics.

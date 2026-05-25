@@ -11,6 +11,8 @@ describe("revvel-standards baseline", () => {
       "GO_TO_MARKET.md",
       "BRAND_GUIDELINES.md",
       "SECURITY.md",
+      "ASSETS_INVENTORY.md",
+      "ARTIFACTS.md",
       "scripts/test-baseline.js",
       "scripts/build-baseline.js",
     ];
@@ -27,5 +29,13 @@ describe("revvel-standards baseline", () => {
 
     expect(packageJson.scripts["test:baseline"]).toBe("node scripts/test-baseline.js");
     expect(packageJson.scripts["build:baseline"]).toBe("node scripts/build-baseline.js");
+  });
+
+  it("uses production website metadata instead of template placeholders", () => {
+    const indexHtml = readFileSync(join(process.cwd(), "index.html"), "utf8");
+
+    expect(indexHtml).toContain("Talent Ladder");
+    expect(indexHtml).not.toContain("Lovable App");
+    expect(indexHtml).not.toContain("Lovable Generated Project");
   });
 });
