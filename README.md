@@ -1,5 +1,9 @@
 # Talent Ladder
 
+
+<!-- AUTO-PACKAGE-BADGES:START -->
+
+<!-- AUTO-PACKAGE-BADGES:END -->
 Talent Ladder is a career mobility web app that helps workers move into semiconductor and advanced manufacturing roles by combining:
 - guided skills assessments,
 - localized opportunity discovery,
